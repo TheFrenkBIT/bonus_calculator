@@ -1,6 +1,16 @@
 version: '3.8'
 
 services:
+  php:
+    build: .
+    container_name: php
+    volumes:
+      - .:/var/www/html
+    networks:
+      - api-bonus
+    depends_on:
+      - postgres
+
   nginx:
     image: nginx:latest
     ports:
@@ -12,16 +22,6 @@ services:
       - php
     networks:
       - api-bonus
-
-  php:
-    build: .
-    container_name: php
-    volumes:
-      - .:/var/www/html
-    networks:
-      - api-bonus
-    depends_on:
-      - postgres
 
   postgres:
     image: postgres:latest

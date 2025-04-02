@@ -5,15 +5,20 @@ RUN apt-get update && apt-get install -y \
     libjpeg-dev \
     libfreetype6-dev \
     libzip-dev \
-    libpq-dev && \
+    libpq-dev \
+    git \
+    curl && \
     docker-php-ext-configure gd --with-freetype --with-jpeg && \
-    docker-php-ext-install gd zip pdo pdo_mysql pdo_pgsql pgsql
+    docker-php-ext-install gd zip pdo pdo_pgsql pgsql
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 WORKDIR /var/www/html
 COPY . .
 
-RUN composer install
 
-CMD php artisan migrate --seed && php-fpm
+COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
+
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+CMD ["php-fpm"]
